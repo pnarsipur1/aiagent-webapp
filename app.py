@@ -56,7 +56,7 @@ project_client = AIProjectClient.from_connection_string(
 )
 
 
-class TelcoAgentContext(BaseModel):
+class AIPTAgentContext(BaseModel):
     user_name: str | None = None
     image_path: str | None = None
     birth_date: str | None = None
@@ -131,7 +131,7 @@ async def faq_lookup_tool(question: str) -> str:
 
 @function_tool
 async def update_user_name(
-    context: RunContextWrapper[TelcoAgentContext], user_name: str, image_path: str, birth_date: str,
+    context: RunContextWrapper[AIPTAgentContext], user_name: str, image_path: str, birth_date: str,
 ) -> str:
     """
     Update the customer user name using government ID or passport image and birth date.
@@ -155,14 +155,14 @@ async def update_user_name(
 ### HOOKS
 
 
-async def on_account_management_handoff(context: RunContextWrapper[TelcoAgentContext]) -> None:
+async def on_account_management_handoff(context: RunContextWrapper[AIPTAgentContext]) -> None:
     user_id = f"ID-{random.randint(100, 999)}"
     context.context.user_id = user_id
 
 
 ### AGENTS
 
-faq_agent = Agent[TelcoAgentContext](
+faq_agent = Agent[AIPTAgentContext](
     name="FAQ Agent",
     handoff_description="A helpful agent that can answer questions about Telco Digital.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -179,7 +179,7 @@ faq_agent = Agent[TelcoAgentContext](
     ),
 )
 
-account_management_agent = Agent[TelcoAgentContext](
+account_management_agent = Agent[AIPTAgentContext](
     name="Account Management Agent",
     handoff_description="A helpful agent that can update customer user name.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -197,7 +197,7 @@ account_management_agent = Agent[TelcoAgentContext](
     ),
 )
 
-live_agent = Agent[TelcoAgentContext](
+live_agent = Agent[AIPTAgentContext](
     name="Live Agent",
     handoff_description="A live human agent that can handle complex issues or when a user specifically requests human assistance.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -225,7 +225,7 @@ live_agent = Agent[TelcoAgentContext](
     ),
 )
 
-triage_agent = Agent[TelcoAgentContext](
+triage_agent = Agent[AIPTAgentContext](
     name="Triage Agent",
     handoff_description="A triage agent that can delegate a customer's request to the appropriate agent.",
     instructions=(
@@ -329,12 +329,12 @@ async def main(user_input: str) -> None:
 @cl.on_chat_start
 async def on_chat_start():
     # Initialize user session
-    current_agent: Agent[TelcoAgentContext] = triage_agent
+    current_agent: Agent[AIPTAgentContext] = triage_agent
     input_items: list[TResponseInputItem] = []
 
     cl.user_session.set("current_agent", current_agent)
     cl.user_session.set("input_items", input_items)
-    cl.user_session.set("context", TelcoAgentContext())
+    cl.user_session.set("context", AIPTAgentContext())
 
     # Create a thread for the agent
     thread = project_client.agents.create_thread()
