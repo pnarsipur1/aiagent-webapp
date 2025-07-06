@@ -1,7 +1,8 @@
 chainlit
 python-dotenv
-azure-ai-projects
+azure-ai-projects==1.0.0b11
 azure-identity
 pydantic
 openai-agents
 openai
+azure-ai-agents
