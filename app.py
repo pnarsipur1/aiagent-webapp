@@ -105,9 +105,10 @@ async def faq_lookup_tool(question: str) -> str:
                             print(f"Run failed. Error: {event_data.last_error}")
                             raise Exception(event_data.last_error)
 
-                    elif event_type == AgentStreamEvent.ERROR:
-                        print(f"An error occurred. Data: {event_data}")
-                        raise Exception(event_data)
+                    #Praveen
+                    # elif event_type == AgentStreamEvent.ERROR:
+                    #     print(f"An error occurred. Data: {event_data}")
+                    #     raise Exception(event_data)
 
         # Get all messages from the thread
         messages = project_client.agents.list_messages(thread_id)
