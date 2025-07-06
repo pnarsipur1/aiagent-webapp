@@ -13,7 +13,7 @@ from azure.identity import DefaultAzureCredential
 from openai.types.responses import ResponseTextDeltaEvent
 from openai import AsyncAzureOpenAI
 from azure.ai.projects.models import (
-    AgentStreamEvent,
+    #AgentStreamEvent,
     MessageDeltaChunk,
     MessageRole,
     ThreadRun,
