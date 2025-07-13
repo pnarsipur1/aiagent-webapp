@@ -13,11 +13,19 @@ from azure.identity import DefaultAzureCredential
 from openai.types.responses import ResponseTextDeltaEvent
 from openai import AsyncAzureOpenAI
 from azure.ai.projects.models import (
-    #AgentStreamEvent,
     MessageDeltaChunk,
     MessageRole,
     ThreadRun,
 )
+# Try importing AgentStreamEvent from azure.ai.agents
+try:
+    from azure.ai.agents.models import AgentStreamEvent
+except ImportError:
+    try:
+        from azure.ai.agents import AgentStreamEvent
+    except ImportError:
+        # If AgentStreamEvent is not available, we'll handle it differently
+        AgentStreamEvent = None
 from agents import (
     Agent,
     RunContextWrapper,
@@ -108,9 +116,12 @@ async def faq_lookup_tool(question: str) -> str:
                             raise Exception(event_data.last_error)
 
                     #Praveen
-                    # elif event_type == AgentStreamEvent.ERROR:
-                    #     print(f"An error occurred. Data: {event_data}")
-                    #     raise Exception(event_data)
+                    elif AgentStreamEvent and hasattr(AgentStreamEvent, 'ERROR') and event_type == AgentStreamEvent.ERROR:
+                        print(f"An error occurred. Data: {event_data}")
+                        raise Exception(event_data)
+                    elif event_type == "error":  # Handle error as string if AgentStreamEvent is not available
+                        print(f"An error occurred. Data: {event_data}")
+                        raise Exception(event_data)
 
         # Get all messages from the thread
         messages = project_client.agents.list_messages(thread_id)
