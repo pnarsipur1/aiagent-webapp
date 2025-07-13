@@ -42,10 +42,10 @@ logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
 logger.setLevel(logging.DEBUG)
 set_tracing_disabled(False)
 
-AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
+#AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 FAQ_AGENT_ID = os.getenv("FAQ_AGENT_ID")
-
+PROJECT_ENDPOINT = os.getenv("PROJECT_ENDPOINT")
 print(f"api_key: {os.getenv('MY_OPENAI_API_KEY')}")
 
 azure_client = AsyncAzureOpenAI(
@@ -57,8 +57,13 @@ azure_client = AsyncAzureOpenAI(
 set_default_openai_client(azure_client, use_for_tracing=False)
 set_default_openai_api("chat_completions")
 
-project_client = AIProjectClient.from_connection_string(
-    conn_str=AIPROJECT_CONNECTION_STRING, credential=DefaultAzureCredential()
+# project_client = AIProjectClient.from_connection_string(
+#     conn_str=AIPROJECT_CONNECTION_STRING, credential=DefaultAzureCredential()
+# )
+
+project_client = AIProjectClient(
+    credential=DefaultAzureCredential(),
+    endpoint=os.environ["PROJECT_ENDPOINT"],
 )
 
 
