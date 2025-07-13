@@ -13,15 +13,14 @@ from azure.identity import DefaultAzureCredential
 from openai.types.responses import ResponseTextDeltaEvent
 from openai import AsyncAzureOpenAI
 from azure.ai.projects.models import (
-    MessageRole,
     ThreadRun,
 )
 # Try importing AgentStreamEvent from azure.ai.agents
 try:
-    from azure.ai.agents.models import AgentStreamEvent, MessageDeltaChunk
+    from azure.ai.agents.models import AgentStreamEvent, MessageDeltaChunk, MessageRole
 except ImportError:
     try:
-        from azure.ai.agents import AgentStreamEvent, MessageDeltaChunk
+        from azure.ai.agents import AgentStreamEvent, MessageDeltaChunk, MessageRole
     except ImportError:
         # If AgentStreamEvent is not available, we'll handle it differently
         AgentStreamEvent = None
