@@ -42,6 +42,8 @@ AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 FAQ_AGENT_ID = os.getenv("FAQ_AGENT_ID")
 
+print(f"api_key: {os.getenv('MY_OPENAI_API_KEY')}")
+
 azure_client = AsyncAzureOpenAI(
     api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
