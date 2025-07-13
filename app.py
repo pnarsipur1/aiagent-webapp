@@ -19,10 +19,10 @@ from azure.ai.projects.models import (
 )
 # Try importing AgentStreamEvent from azure.ai.agents
 try:
-    from azure.ai.agents.models import AgentStreamEvent
+    from azure.ai.agents.models import AgentStreamEvent, MessageDeltaChunk
 except ImportError:
     try:
-        from azure.ai.agents import AgentStreamEvent
+        from azure.ai.agents import AgentStreamEvent, MessageDeltaChunk
     except ImportError:
         # If AgentStreamEvent is not available, we'll handle it differently
         AgentStreamEvent = None
