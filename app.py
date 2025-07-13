@@ -44,7 +44,7 @@ load_dotenv()
 # Disable verbose connection logs
 logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
 logger.setLevel(logging.DEBUG)
-set_tracing_disabled(True)
+set_tracing_disabled(False)
 
 AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
