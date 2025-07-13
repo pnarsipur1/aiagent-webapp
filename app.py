@@ -12,16 +12,12 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from openai.types.responses import ResponseTextDeltaEvent
 from openai import AsyncAzureOpenAI
-
-# Try importing AgentStreamEvent from azure.ai.agents
-try:
-    from azure.ai.agents.models import AgentStreamEvent, MessageDeltaChunk, MessageRole, ThreadRun
-except ImportError:
-    try:
-        from azure.ai.agents import AgentStreamEvent, MessageDeltaChunk, MessageRole, ThreadRun
-    except ImportError:
-        # If AgentStreamEvent is not available, we'll handle it differently
-        AgentStreamEvent = None
+from azure.ai.projects.models import (
+    AgentStreamEvent,
+    MessageDeltaChunk,
+    MessageRole,
+    ThreadRun,
+)
 from agents import (
     Agent,
     RunContextWrapper,
@@ -39,14 +35,12 @@ from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 load_dotenv()
 # Disable verbose connection logs
 logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.DEBUG)
-set_tracing_disabled(False)
+logger.setLevel(logging.WARNING)
+set_tracing_disabled(True)
 
-#AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
+AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 FAQ_AGENT_ID = os.getenv("FAQ_AGENT_ID")
-PROJECT_ENDPOINT = os.getenv("PROJECT_ENDPOINT")
-print(f"api_key: {os.getenv('MY_OPENAI_API_KEY')}")
 
 azure_client = AsyncAzureOpenAI(
     api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
@@ -57,17 +51,12 @@ azure_client = AsyncAzureOpenAI(
 set_default_openai_client(azure_client, use_for_tracing=False)
 set_default_openai_api("chat_completions")
 
-# project_client = AIProjectClient.from_connection_string(
-#     conn_str=AIPROJECT_CONNECTION_STRING, credential=DefaultAzureCredential()
-# )
-
-project_client = AIProjectClient(
-    credential=DefaultAzureCredential(),
-    endpoint=os.environ["PROJECT_ENDPOINT"],
+project_client = AIProjectClient.from_connection_string(
+    conn_str=AIPROJECT_CONNECTION_STRING, credential=DefaultAzureCredential()
 )
 
 
-class AIPTAgentContext(BaseModel):
+class TelcoAgentContext(BaseModel):
     user_name: str | None = None
     image_path: str | None = None
     birth_date: str | None = None
@@ -116,11 +105,7 @@ async def faq_lookup_tool(question: str) -> str:
                             print(f"Run failed. Error: {event_data.last_error}")
                             raise Exception(event_data.last_error)
 
-                    #Praveen
-                    elif AgentStreamEvent and hasattr(AgentStreamEvent, 'ERROR') and event_type == AgentStreamEvent.ERROR:
-                        print(f"An error occurred. Data: {event_data}")
-                        raise Exception(event_data)
-                    elif event_type == "error":  # Handle error as string if AgentStreamEvent is not available
+                    elif event_type == AgentStreamEvent.ERROR:
                         print(f"An error occurred. Data: {event_data}")
                         raise Exception(event_data)
 
@@ -146,7 +131,7 @@ async def faq_lookup_tool(question: str) -> str:
 
 @function_tool
 async def update_user_name(
-    context: RunContextWrapper[AIPTAgentContext], user_name: str, image_path: str, birth_date: str,
+    context: RunContextWrapper[TelcoAgentContext], user_name: str, image_path: str, birth_date: str,
 ) -> str:
     """
     Update the customer user name using government ID or passport image and birth date.
@@ -170,14 +155,14 @@ async def update_user_name(
 ### HOOKS
 
 
-async def on_account_management_handoff(context: RunContextWrapper[AIPTAgentContext]) -> None:
+async def on_account_management_handoff(context: RunContextWrapper[TelcoAgentContext]) -> None:
     user_id = f"ID-{random.randint(100, 999)}"
     context.context.user_id = user_id
 
 
 ### AGENTS
 
-faq_agent = Agent[AIPTAgentContext](
+faq_agent = Agent[TelcoAgentContext](
     name="FAQ Agent",
     handoff_description="A helpful agent that can answer questions about Telco Digital.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -194,7 +179,7 @@ faq_agent = Agent[AIPTAgentContext](
     ),
 )
 
-account_management_agent = Agent[AIPTAgentContext](
+account_management_agent = Agent[TelcoAgentContext](
     name="Account Management Agent",
     handoff_description="A helpful agent that can update customer user name.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -212,7 +197,7 @@ account_management_agent = Agent[AIPTAgentContext](
     ),
 )
 
-live_agent = Agent[AIPTAgentContext](
+live_agent = Agent[TelcoAgentContext](
     name="Live Agent",
     handoff_description="A live human agent that can handle complex issues or when a user specifically requests human assistance.",
     instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
@@ -240,7 +225,7 @@ live_agent = Agent[AIPTAgentContext](
     ),
 )
 
-triage_agent = Agent[AIPTAgentContext](
+triage_agent = Agent[TelcoAgentContext](
     name="Triage Agent",
     handoff_description="A triage agent that can delegate a customer's request to the appropriate agent.",
     instructions=(
@@ -344,12 +329,12 @@ async def main(user_input: str) -> None:
 @cl.on_chat_start
 async def on_chat_start():
     # Initialize user session
-    current_agent: Agent[AIPTAgentContext] = triage_agent
+    current_agent: Agent[TelcoAgentContext] = triage_agent
     input_items: list[TResponseInputItem] = []
 
     cl.user_session.set("current_agent", current_agent)
     cl.user_session.set("input_items", input_items)
-    cl.user_session.set("context", AIPTAgentContext())
+    cl.user_session.set("context", TelcoAgentContext())
 
     # Create a thread for the agent
     thread = project_client.agents.create_thread()
