@@ -43,7 +43,7 @@ from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 load_dotenv()
 # Disable verbose connection logs
 logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 set_tracing_disabled(True)
 
 AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
