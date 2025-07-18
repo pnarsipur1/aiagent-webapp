@@ -39,6 +39,13 @@ logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
 logger.setLevel(logging.DEBUG)
 set_tracing_disabled(False)
 
+api_key = os.getenv("OPENAI_API_KEY")
+
+if api_key is None:
+    print("OPENAI_API_KEY is not set, skipping trace export")
+else:
+    print("API Key is set")
+
 AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 FAQ_AGENT_ID = os.getenv("FAQ_AGENT_ID")
@@ -49,7 +56,7 @@ azure_client = AsyncAzureOpenAI(
     api_key=os.getenv("MY_OPENAI_API_KEY"),
 )
 
-set_default_openai_client(azure_client, use_for_tracing=False)
+set_default_openai_client(azure_client, use_for_tracing=True)
 set_default_openai_api("chat_completions")
 enable_verbose_stdout_logging()
 
