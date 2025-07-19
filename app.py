@@ -33,18 +33,12 @@ from agents import (
 )
 from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 
-load_dotenv()
+#load_dotenv()
 # Disable verbose connection logs
 logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
 logger.setLevel(logging.DEBUG)
 set_tracing_disabled(False)
 
-api_key = os.getenv("OPENAI_API_KEY")
-
-if api_key is None:
-    print("OPENAI_API_KEY is not set, skipping trace export")
-else:
-    print("API Key is set")
 
 AIPROJECT_CONNECTION_STRING = os.getenv("AIPROJECT_CONNECTION_STRING")
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
