@@ -61,8 +61,9 @@ try:
     # Make a simple API call to verify connection (e.g., list models)
     models = asyncio.run(azure_client.models.list())
     print("Successfully connected to Azure OpenAI. Available models:")
+    print(f"Model count is {len(models)}")
     for model in models:
-        print(f"- {model.id}")
+        print(f"- {model.name}")
 except Exception as e:
     print(f"Failed to connect to Azure OpenAI: {e}")
 
