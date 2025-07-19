@@ -56,6 +56,16 @@ azure_client = AsyncAzureOpenAI(
     api_key=os.getenv("MY_OPENAI_API_KEY"),
 )
 
+# Check if connecting to the Azure OpenAI client is successful
+try:
+    # Make a simple API call to verify connection (e.g., list models)
+    models = asyncio.run(azure_client.models.list())
+    print("Successfully connected to Azure OpenAI. Available models:")
+    for model in models:
+        print(f"- {model.id}")
+except Exception as e:
+    print(f"Failed to connect to Azure OpenAI: {e}")
+
 set_default_openai_client(azure_client, use_for_tracing=True)
 set_default_openai_api("chat_completions")
 enable_verbose_stdout_logging()
